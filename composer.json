@@ -11,6 +11,7 @@
     }
   ],
   "require": {
+    "php": "^7.2",
     "monolog/monolog": "^2.",
     "ext-mbstring": "*",
     "ext-json": "*",
