@@ -1,0 +1,28 @@
+{
+  "name": "vuylov/equeo-integration-app-skeleton",
+  "description": "Equeo integration application skeleton",
+  "type": "project",
+  "license": "commercial",
+  "minimum-stability": "stable",
+  "authors": [
+    {
+      "name": "Vuylov Dmitry",
+      "email": "vuylov.dmitry@e-queo.com"
+    }
+  ],
+  "require": {
+    "monolog/monolog": "^2.",
+    "ext-mbstring": "*",
+    "ext-json": "*",
+    "ext-curl": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "App\\": "src/",
+      "App\\Examples\\": "examples/"
+    }
+  },
+  "config": {
+    "sort-packages": true
+  }
+}
