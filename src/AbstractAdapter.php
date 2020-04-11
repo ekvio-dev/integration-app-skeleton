@@ -1,6 +1,6 @@
 <?php
 
-namespace Skeleton;
+namespace Ekvio\Integration\Skeleton;
 
 use Exception;
 use Monolog\Logger;

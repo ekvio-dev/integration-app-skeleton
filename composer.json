@@ -19,7 +19,7 @@
   },
   "autoload": {
     "psr-4": {
-      "Skeleton\\": "src/"
+      "Ekvio\\Integration\\Skeleton\\": "src/"
     }
   },
   "config": {

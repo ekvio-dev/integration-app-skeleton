@@ -1,5 +1,5 @@
 <?php
-namespace Skeleton;
+namespace Ekvio\Integration\Skeleton;
 
 use ErrorException;
 use Throwable;
