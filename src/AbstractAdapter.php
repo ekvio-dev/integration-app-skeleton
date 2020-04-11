@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace Skeleton;
 
 use Exception;
 use Monolog\Logger;

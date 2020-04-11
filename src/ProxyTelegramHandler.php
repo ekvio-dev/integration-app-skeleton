@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace Skeleton;
 
 use Monolog\Handler\AbstractProcessingHandler;
 use Monolog\Logger;

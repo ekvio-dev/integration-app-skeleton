@@ -19,8 +19,7 @@
   },
   "autoload": {
     "psr-4": {
-      "App\\": "src/",
-      "App\\Examples\\": "examples/"
+      "Skeleton\\": "src/"
     }
   },
   "config": {

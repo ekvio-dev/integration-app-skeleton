@@ -1,5 +1,5 @@
 <?php
-namespace App;
+namespace Skeleton;
 
 use ErrorException;
 use Throwable;
