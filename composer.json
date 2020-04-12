@@ -1,6 +1,6 @@
 {
-  "name": "ekvio-dev/equeo-integration-app-skeleton",
-  "description": "Equeo integration application skeleton",
+  "name": "ekvio-dev/integration-app-skeleton",
+  "description": "Ekvio integration application skeleton",
   "type": "project",
   "license": "commercial",
   "minimum-stability": "stable",
