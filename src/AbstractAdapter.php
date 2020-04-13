@@ -53,7 +53,24 @@ abstract class AbstractAdapter implements Application
      */
     private function parseConfig(array $config): void
     {
-        foreach (LoggerMonologFactory::addHandlerFromConfig($config) as $handler) {
+        $loggerHandlers = $config['logger']['handlers'] ?? null;
+
+        if(!$loggerHandlers || !is_string($loggerHandlers)) {
+            return;
+        }
+
+        $loggerHandlers =  $handlers = explode(',', $loggerHandlers);
+        if(count($loggerHandlers) === 0) {
+            return;
+        }
+
+        $loggerHandlersConfig = $config['logger']['config'] ?? [];
+
+        if(!$loggerHandlers || !is_array($loggerHandlersConfig)) {
+            return;
+        }
+
+        foreach (LoggerMonologFactory::addHandlerFromConfig($loggerHandlers, $loggerHandlersConfig) as $handler) {
             $this->logger->pushHandler($handler);
         }
     }

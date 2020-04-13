@@ -13,6 +13,7 @@ class ProxyTelegramHandler extends AbstractProcessingHandler
 {
     private const CURL_DEFAULT_TIMEOUT = 10;
     private const CURL_SSL_VERIFY = true;
+    private const DEFAULT_LEVEL = Logger::INFO;
     /**
      * @var string
      */
@@ -39,7 +40,7 @@ class ProxyTelegramHandler extends AbstractProcessingHandler
      * @param int $level
      * @param bool $bubble
      */
-    public function __construct(string $proxy, string $botToken, string $chatId, array $options = [], $level = Logger::DEBUG, bool $bubble = true)
+    public function __construct(string $proxy, string $botToken, string $chatId, array $options = [], $level = self::DEFAULT_LEVEL, bool $bubble = true)
     {
         $this->proxy = $proxy;
         $this->botToken = $botToken;
@@ -89,12 +90,12 @@ class ProxyTelegramHandler extends AbstractProcessingHandler
         curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
         curl_exec($ch);
 
-        $error = null;
+        /*$error = null;
         if (!curl_errno($ch)) {
             $error = curl_getinfo($ch);
             $message = sprintf("Bad curl response. Code: %s, Url:%s\n", $error['http_code'], $error['url']);
             fwrite(STDOUT, $message);
-        }
+        }*/
         curl_close($ch);
     }
 }

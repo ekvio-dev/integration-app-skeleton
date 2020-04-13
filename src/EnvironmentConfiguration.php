@@ -36,20 +36,28 @@ class EnvironmentConfiguration implements ApplicationConfiguration
         return $this->configuration;
     }
 
+    /**
+     * @return array
+     */
     protected function defaultConfig(): array
     {
         return  [
             'logger' => [
-                'handlers' => getenv('LOGGER_HANDLERS') ? getenv('LOGGER_HANDLERS') : null,
+                'handlers' => getenv('LOGGER_HANDLERS') ?: null,
                 'config' => [
-                    'telegram_proxy' => [
-                        'level' => getenv('LOGGER_TELEGRAM_PROXY_LEVEL') ? getenv('LOGGER_TELEGRAM_PROXY_LEVEL') : null,
-                        'proxy' => getenv('LOGGER_TELEGRAM_PROXY_ADDRESS') ? getenv('LOGGER_TELEGRAM_PROXY_ADDRESS') : null,
-                        'bot' => getenv('LOGGER_TELEGRAM_PROXY_BOT_ID') ? getenv('LOGGER_TELEGRAM_PROXY_BOT_ID') : null,
-                        'chat' => getenv('LOGGER_TELEGRAM_PROXY_CHAT_ID') ? getenv('LOGGER_TELEGRAM_PROXY_CHAT_ID') : null,
+                    [
+                        '__name__' => 'telegram_proxy',
+                        '__class__' => ProxyTelegramHandler::class,
+                        '__processors__' => [
+                            ['__class__' => StacktracelessProcessor::class]
+                        ],
+                        'level' => getenv('LOGGER_TELEGRAM_PROXY_LEVEL') ?: null,
+                        'proxy' => getenv('LOGGER_TELEGRAM_PROXY_ADDRESS') ?: null,
+                        'botToken' => getenv('LOGGER_TELEGRAM_PROXY_BOT_ID') ?: null,
+                        'chatId' => getenv('LOGGER_TELEGRAM_PROXY_CHAT_ID') ?: null,
                         'options' => [
-                            'proxy' => getenv('CURL_PROXY') ? getenv('CURL_PROXY') : null,
-                            'timeout' => getenv('CURL_CONNECT_TIMEOUT') ? getenv('CURL_CONNECT_TIMEOUT') : null,
+                            'proxy' => getenv('CURL_PROXY') ?: null,
+                            'timeout' => getenv('CURL_CONNECT_TIMEOUT') ?: null,
                             'verify' => getenv('CURL_SSL_VERIFY') !== false ? getenv('CURL_SSL_VERIFY') : null,
                         ],
                     ],

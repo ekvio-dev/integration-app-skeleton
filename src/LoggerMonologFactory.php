@@ -10,6 +10,9 @@ use Monolog\Handler\AbstractProcessingHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
+use ReflectionClass;
+use ReflectionException;
+use ReflectionMethod;
 use Throwable;
 
 /**
@@ -20,12 +23,6 @@ class LoggerMonologFactory
 {
     private const DEFAULT_LINE_FORMAT = "[%level_name%][%datetime%]%message%\n";
     private static $formatter;
-    /**
-     * @var array
-     */
-    private static $handlers = [
-        'telegram_proxy' => ProxyTelegramHandler::class
-    ];
 
     /**
      * @param string $name
@@ -50,53 +47,90 @@ class LoggerMonologFactory
     }
 
     /**
-     * @param array $config
+     * @param array $handlers
+     * @param array $handlerConfigs
      * @return Generator
      * @throws Exception
      */
-    public static function addHandlerFromConfig(array $config): Generator
+    public static function addHandlerFromConfig(array $handlers, array $handlerConfigs): Generator
     {
-        if(isset($config['logger']['handlers'])) {
-            $handlers = explode(',', $config['logger']['handlers']);
-            foreach ($handlers as $handler) {
-
-                if(!isset(self::$handlers[$handler])) {
-                    throw new Exception(sprintf('For logger handler [%s] class not exist', $handler));
-                }
-
-                if(!isset($config['logger']['config'][$handler])) {
-                    throw new Exception(sprintf('For logger handler [%s] configuration not exists', $handler));
-                }
-
-                yield self::createHandler($handler, $config['logger']['config'][$handler]);
+        foreach ($handlerConfigs as $config) {
+            if(!isset($config['__name__'])) {
+                throw new Exception('Key "_name_" not exist in handler config');
             }
+
+            if(!isset($config['__class__'])) {
+                throw new Exception('Key "_class_" not exist in handler config');
+            }
+
+            if(!in_array($config['__name__'], $handlers, true)) { //skip handler config if not in handlers list
+                continue;
+            }
+
+            yield self::createHandler($config)->setFormatter(self::defaultFormatter());
         }
     }
 
     /**
-     * @param string $type
-     * @param array $config
+     * @param array $handlerConfig
      * @return AbstractProcessingHandler
+     * @throws ReflectionException
      * @throws Exception
      */
-    private static function createHandler(string $type, array $config): AbstractProcessingHandler
+    private static function createHandler(array $handlerConfig): AbstractProcessingHandler
     {
-        if($type === 'telegram_proxy') {
+        /** @var AbstractProcessingHandler $instance */
+       $instance = self::createObjectFromDefinition($handlerConfig);
 
-            $proxy = $config['proxy'] ?? null;
-            $bot = $config['bot'] ?? null;
-            $chat = $config['chat'] ?? null;
-            $options = $config['options'] ?? [];
-            $level = isset($config['level']) ? (int) $config['level'] : Logger::DEBUG;
+       $processorDefinitions = $handlerConfig['__processors__'] ?? [];
+       foreach ($processorDefinitions as $definition) {
+           $instance->pushProcessor(self::createObjectFromDefinition($definition));
+       }
 
-            $handler = new ProxyTelegramHandler($proxy, $bot, $chat, $options, $level);
-            $handler->setFormatter(self::defaultFormatter());
-            $handler->pushProcessor(self::withoutStacktrace());
+       return $instance;
+    }
 
-            return $handler;
+    /**
+     * @param array $definition
+     * @return mixed
+     * @throws ReflectionException
+     * @throws Exception
+     */
+    private static function createObjectFromDefinition(array $definition)
+    {
+        $class = $definition['__class__'];
+        if(!class_exists($class)) {
+            throw new Exception(sprintf('Class %s not exists in config', $class));
         }
 
-        throw new Exception(sprintf('Create unknown handler [%s]', $type));
+        $classReflection = new ReflectionClass($class);
+        if(!$classReflection->getConstructor()) {
+            return new $class;
+        }
+
+        $reflection = new ReflectionMethod($class, '__construct');
+
+        $configHandlersParams = array_keys($definition);
+        $args = [];
+        foreach ($reflection->getParameters() as $parameter) {
+            $parameterName = $parameter->getName();
+
+            if($parameter->isOptional() === false) { //required parameters
+                if(!in_array($parameterName, $configHandlersParams, true)) {
+                    throw new Exception(sprintf('For class "%s" parameter "%s" not declared', $class, $parameterName));
+                }
+
+                $args[] = $definition[$parameterName];
+                continue;
+            }
+
+            if($parameter->isOptional() === true) {
+                $args[] = $definition[$parameterName] ?? $parameter->getDefaultValue();
+                continue;
+            }
+        }
+
+        return new $class(...$args);
     }
 
     /**
@@ -109,33 +143,6 @@ class LoggerMonologFactory
         }
 
         return self::$formatter;
-    }
-
-    /**
-     * @return callable
-     */
-    private static function withoutStacktrace(): callable
-    {
-        return static function(array $record) {
-
-            if(!array_key_exists('message', $record)) {
-                return $record;
-            }
-
-            /** @noinspection RegExpRedundantEscape */
-            $parts = preg_split('/(\[[^]]+\])/', $record['message'], -1, PREG_SPLIT_DELIM_CAPTURE);
-            if(!is_array($parts)) {
-                return $record;
-            }
-
-            // removes all NULL, FALSE and Empty Strings but leaves 0 (zero) values
-            $parts = array_values(array_filter($parts, 'strlen'));
-            if(count($parts) === 5) {
-                unset($parts[4]);
-            }
-            $record['message'] = implode($parts);
-            return $record;
-        };
     }
 
     /**
