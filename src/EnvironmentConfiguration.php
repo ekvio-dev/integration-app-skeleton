@@ -42,6 +42,7 @@ class EnvironmentConfiguration implements ApplicationConfiguration
     protected function defaultConfig(): array
     {
         return  [
+            'debug' => getenv('APPLICATION_DEBUG') ?: null,
             'logger' => [
                 'handlers' => getenv('LOGGER_HANDLERS') ?: null,
                 'config' => [

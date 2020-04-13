@@ -30,6 +30,11 @@ abstract class AbstractAdapter implements Application
     protected $logger;
 
     /**
+     * @var bool
+     */
+    protected $debug = false;
+
+    /**
      * AbstractAdapter constructor.
      * @param string $name
      * @param string $company
@@ -53,6 +58,11 @@ abstract class AbstractAdapter implements Application
      */
     private function parseConfig(array $config): void
     {
+        if(array_key_exists('debug', $config)) {
+            $this->debug = (bool) $config['debug'];
+        }
+
+
         $loggerHandlers = $config['logger']['handlers'] ?? null;
 
         if(!$loggerHandlers || !is_string($loggerHandlers)) {
