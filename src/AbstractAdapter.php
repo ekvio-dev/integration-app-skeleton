@@ -61,7 +61,7 @@ abstract class AbstractAdapter implements Application
      * @param array $config
      * @throws Exception
      */
-    private function parseConfig(array $config): void
+    protected function parseConfig(array $config): void
     {
         if(array_key_exists('debug', $config)) {
             $this->debug = (bool) $config['debug'];
@@ -90,6 +90,18 @@ abstract class AbstractAdapter implements Application
 
         foreach (LoggerMonologFactory::addHandlerFromConfig($loggerHandlers, $loggerHandlersConfig) as $handler) {
             $this->logger->pushHandler($handler);
+        }
+    }
+
+    /**
+     * Profiling in debug mode
+     * @param string $message
+     * @param int $level
+     */
+    public function profile(string $message, int $level = Logger::DEBUG): void
+    {
+        if($this->debug) {
+            $this->logger->addRecord($level, $message);
         }
     }
 

@@ -38,9 +38,8 @@ class LoggerMonologFactory
         $logger->pushHandler($defaultHandler);
         //Add global processor
         $logger->pushProcessor(static function (array $record) {
-            return array_map(static function ($element) {
-                return is_string($element) ? mb_strtolower($element) : $element;
-            }, $record);
+            $record['level_name'] = mb_strtolower($record['level_name']);
+            return $record;
         });
 
         return $logger;
