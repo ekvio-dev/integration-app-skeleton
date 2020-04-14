@@ -64,6 +64,22 @@ class EnvironmentConfiguration implements ApplicationConfiguration
                     ],
                 ],
             ],
+            'params' => $this->collectParams(),
         ];
+    }
+
+    /**
+     * Collect only env start from PARAM_
+     * @return array
+     */
+    protected function collectParams(): array
+    {
+        $env = [];
+        foreach (getenv() as $param => $value) {
+            if(strpos($param, 'PARAM_') !== false) {
+                $env[$param] = $value;
+            }
+        }
+        return $env;
     }
 }

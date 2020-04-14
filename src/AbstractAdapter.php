@@ -35,6 +35,11 @@ abstract class AbstractAdapter implements Application
     protected $debug = false;
 
     /**
+     * @var array
+     */
+    protected $params = [];
+
+    /**
      * AbstractAdapter constructor.
      * @param string $name
      * @param string $company
@@ -62,6 +67,9 @@ abstract class AbstractAdapter implements Application
             $this->debug = (bool) $config['debug'];
         }
 
+        if(array_key_exists('params', $config) && is_array($config['params'])) {
+            $this->params = $config['params'];
+        }
 
         $loggerHandlers = $config['logger']['handlers'] ?? null;
 
