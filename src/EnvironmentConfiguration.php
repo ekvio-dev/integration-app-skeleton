@@ -52,14 +52,14 @@ class EnvironmentConfiguration implements ApplicationConfiguration
                         '__processors__' => [
                             ['__class__' => StacktracelessProcessor::class]
                         ],
-                        'level' => getenv('LOGGER_TELEGRAM_PROXY_LEVEL') ?: null,
+                        'level' => (int) getenv('LOGGER_TELEGRAM_PROXY_LEVEL') ?: null,
                         'proxy' => getenv('LOGGER_TELEGRAM_PROXY_ADDRESS') ?: null,
                         'botToken' => getenv('LOGGER_TELEGRAM_PROXY_BOT_ID') ?: null,
                         'chatId' => getenv('LOGGER_TELEGRAM_PROXY_CHAT_ID') ?: null,
                         'options' => [
-                            'proxy' => getenv('CURL_PROXY') ?: null,
-                            'timeout' => getenv('CURL_CONNECT_TIMEOUT') ?: null,
-                            'verify' => getenv('CURL_SSL_VERIFY') !== false ? getenv('CURL_SSL_VERIFY') : null,
+                            'proxy' => getenv('LOGGER_TELEGRAM_PROXY_CURL_PROXY') ?: null,
+                            'timeout' => (int) getenv('LOGGER_TELEGRAM_PROXY_CURL_CONNECT_TIMEOUT') ?: null,
+                            'verify' => getenv('LOGGER_TELEGRAM_PROXY_CURL_SSL_VERIFY') !== false ? getenv('CURL_SSL_VERIFY') : null,
                         ],
                     ],
                 ],
