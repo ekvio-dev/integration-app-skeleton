@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Ekvio\Integration\Skeleton;
 
@@ -29,12 +30,13 @@ interface Application
     public function type(): string;
 
     /**
-     * Main application handler
+     * @return null|LoggerInterface
      */
-    public function run(): void;
+    public function logger(): ?LoggerInterface;
 
     /**
-     * @return LoggerInterface
+     * @param string $taskClassName
+     * @param array $parameters
      */
-    public function logger(): LoggerInterface;
+    public function run(string $taskClassName, array $parameters = []): void;
 }

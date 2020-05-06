@@ -1,6 +1,6 @@
 <?php
 
-namespace Ekvio\Integration\Skeleton;
+namespace Ekvio\Integration\Skeleton\Log;
 
 use Monolog\Processor\ProcessorInterface;
 

@@ -12,10 +12,11 @@
   ],
   "require": {
     "php": "^7.2",
-    "monolog/monolog": "^2.",
-    "ext-mbstring": "*",
+    "ext-curl": "*",
     "ext-json": "*",
-    "ext-curl": "*"
+    "ext-mbstring": "*",
+    "monolog/monolog": "^2.",
+    "php-di/php-di": "^6.1"
   },
   "autoload": {
     "psr-4": {

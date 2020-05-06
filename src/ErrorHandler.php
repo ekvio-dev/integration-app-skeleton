@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace Ekvio\Integration\Skeleton;
 
 use ErrorException;
@@ -8,12 +10,10 @@ use Throwable;
  * Class ErrorHandler
  * Simplified error handler from Yii2 framework
  * @see https://github.com/yiisoft/yii2/blob/master/framework/base/ErrorHandler.php
- * @package App
+ * @package Ekvio\Integration\Skeleton
  */
 class ErrorHandler
 {
-    private const APP_SUCCESSFUL_COMPLETE_MESSAGE = 'app successfully completed';
-    private const APP_EMPTY_STACKTRACE = '-';
     /**
      * @var Application
      */
@@ -41,22 +41,6 @@ class ErrorHandler
     public $exception;
 
     /**
-     * @var bool
-     */
-    private $exceptionHandled = false;
-
-    /**
-     * @var string error string format: [company][application][name][message][stacktrace]
-     * [company] - company name context get from ENV
-     * [application] - type application: application|adapter
-     * [name] - application name, get from ENV
-     * [message] - log message. If error message can consist from message:file:line
-     * [stacktrace] - string stacktrace
-     *
-     * type log and timestamp append by logger
-     */
-    private $messageFormat = '[%s][%s][%s][%s][%s]';
-    /**
      * @var string Used to reserve memory for fatal error handler.
      */
     private $_memoryReserve;
@@ -71,7 +55,7 @@ class ErrorHandler
     public function register(): void
     {
         if (!$this->_registered) {
-            ini_set('display_errors', false);
+            ini_set('display_errors', '0');
             set_exception_handler([$this, 'handleException']);
             set_error_handler([$this, 'handleError']);
 
@@ -116,7 +100,6 @@ class ErrorHandler
             $this->handleFallbackExceptionMessage($e);
         }
 
-        $this->exceptionHandled = true;
         $this->exception = null;
     }
 
@@ -162,22 +145,7 @@ class ErrorHandler
         if(is_array($error) && $this->isFatalError($error)) {
             $exception = new ErrorException($error['message'], $error['type'], $error['type'], $error['file'], $error['line']);
             $this->logException($exception);
-            exit(1);
         }
-
-        //after handled exception case
-        if($this->exceptionHandled) {
-            exit(1);
-        }
-
-        $this->app->logger()->info($this->format(
-            $this->app->company(),
-            $this->app->type(),
-            $this->app->name(),
-            self::APP_SUCCESSFUL_COMPLETE_MESSAGE,
-            self::APP_EMPTY_STACKTRACE
-        ));
-        exit(0);
     }
 
     /**
@@ -198,42 +166,12 @@ class ErrorHandler
         $exceptionMessage = sprintf('%s:%s:%s', $exception->getMessage(), $exception->getFile(), $exception->getLine());
         $stacktrace = $exception->getTraceAsString() ?? '';
 
-        $this->app->logger()->error($this->format(
-            $this->app->company(),
-            $this->app->type(),
-            $this->app->name(),
-            $exceptionMessage,
-            $stacktrace
-        ));
-    }
+        $message = $this->app->format($exceptionMessage, $stacktrace);
+        if($this->app->logger()) {
+            $this->app->logger()->error($message);
+            return;
+        }
 
-    /**
-     * @param string $value
-     * @return string
-     */
-    private function trimSymbols(string $value): string
-    {
-        return strtr($value,  [
-            '[' => '~',
-            ']' => '~'
-        ]);
-    }
-
-    /**
-     * @param string $company
-     * @param string $type
-     * @param string $name
-     * @param string $exceptionMessage
-     * @param string $exceptionStacktrace
-     * @return string
-     */
-    private function format(string $company, string $type, string $name, string $exceptionMessage, string $exceptionStacktrace): string
-    {
-        return  sprintf($this->messageFormat,
-            $this->trimSymbols($company),
-            $this->trimSymbols($type),
-            $this->trimSymbols($name),
-            $this->trimSymbols($exceptionMessage),
-            $this->trimSymbols($exceptionStacktrace));
+        error_log($message);
     }
 }

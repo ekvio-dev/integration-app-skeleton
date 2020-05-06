@@ -2,14 +2,18 @@
 
 namespace Ekvio\Integration\Skeleton;
 
+use Ekvio\Integration\Skeleton\Log\LoggerMonologFactory;
+use Ekvio\Integration\Skeleton\Profile\LoggerProfiler;
+use Ekvio\Integration\Skeleton\Profile\Profiler;
+use Psr\Container\ContainerInterface;
+use Psr\Log\LoggerInterface;
+
 /**
  * Class EnvironmentConfiguration
  * @package App
  */
-class EnvironmentConfiguration implements ApplicationConfiguration
+class EnvironmentConfiguration
 {
-    protected $configuration;
-
     /**
      * EnvironmentConfiguration constructor.
      */
@@ -18,68 +22,25 @@ class EnvironmentConfiguration implements ApplicationConfiguration
     }
 
     /**
-     * @return static
-     */
-    public static function create(): self
-    {
-        $self = new self();
-        $self->configuration = $self->defaultConfig();
-
-        return $self;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function get(): array
-    {
-        return $this->configuration;
-    }
-
-    /**
      * @return array
      */
-    protected function defaultConfig(): array
+    public static function create(): array
     {
+        $env = getenv();
+        $debug = (bool) $env['APPLICATION_DEBUG'] ?? null;
+
         return  [
-            'debug' => getenv('APPLICATION_DEBUG') ?: null,
-            'logger' => [
-                'handlers' => getenv('LOGGER_HANDLERS') ?: null,
-                'config' => [
-                    [
-                        '__name__' => 'telegram_proxy',
-                        '__class__' => ProxyTelegramHandler::class,
-                        '__processors__' => [
-                            ['__class__' => StacktracelessProcessor::class]
-                        ],
-                        'level' => (int) getenv('LOGGER_TELEGRAM_PROXY_LEVEL') ?: null,
-                        'proxy' => getenv('LOGGER_TELEGRAM_PROXY_ADDRESS') ?: null,
-                        'botToken' => getenv('LOGGER_TELEGRAM_PROXY_BOT_ID') ?: null,
-                        'chatId' => getenv('LOGGER_TELEGRAM_PROXY_CHAT_ID') ?: null,
-                        'options' => [
-                            'proxy' => getenv('LOGGER_TELEGRAM_PROXY_CURL_PROXY') ?: null,
-                            'timeout' => (int) getenv('LOGGER_TELEGRAM_PROXY_CURL_CONNECT_TIMEOUT') ?: null,
-                            'verify' => getenv('LOGGER_TELEGRAM_PROXY_CURL_SSL_VERIFY') !== false ? getenv('CURL_SSL_VERIFY') : null,
-                        ],
-                    ],
-                ],
-            ],
-            'params' => $this->collectParams(),
+            'name' => $env['INTEGRATION_APP_NAME'] ?? null,
+            'company' => $env['INTEGRATION_COMPANY_NAME'] ?? null,
+            'debug' => $debug,
+            'services' => [
+                LoggerInterface::class => function () use ($env) {
+                    return LoggerMonologFactory::createLogger('logger', $env);
+                },
+                Profiler::class => function(ContainerInterface $c) use ($debug) {
+                    return new LoggerProfiler($c->get(LoggerInterface::class), $debug);
+                },
+            ]
         ];
-    }
-
-    /**
-     * Collect only env start from PARAM_
-     * @return array
-     */
-    protected function collectParams(): array
-    {
-        $env = [];
-        foreach (getenv() as $param => $value) {
-            if(strpos($param, 'PARAM_') !== false) {
-                $env[$param] = $value;
-            }
-        }
-        return $env;
     }
 }
