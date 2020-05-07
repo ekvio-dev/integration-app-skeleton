@@ -49,7 +49,14 @@ class Composite implements Invokable
     public function __invoke(array $parameters = []): void
     {
         $tasks = [];
-        foreach ($parameters as $classname) {
+        foreach ($parameters as $key => $classname) {
+
+            $taskParameters = [];
+            if(is_array($classname)) {
+                $taskParameters = $classname;
+                $classname = $key;
+            }
+
             if(!class_exists($classname)) {
                 throw new Exception(sprintf('Class %s not exist', $classname));
             }
@@ -59,14 +66,14 @@ class Composite implements Invokable
                 throw new Exception(sprintf('Task %s must implement Invokable interface', $classname));
             }
 
-            $tasks[] = $task;
+            $tasks[] = ['name' => $task, 'parameters' => $taskParameters];
         }
 
-        $parameters = [];
-        foreach ($tasks as $task) {
+        foreach ($tasks as $invoker) {
             /** @var Invokable $task */
+            $task = $invoker['name'];
             $this->profiler->profile(sprintf('Starting %s task...', $task->name()));
-            call_user_func_array($task, [$parameters]);
+            call_user_func_array($task, [$invoker['parameters']]);
             $this->profiler->profile(sprintf('Stopping %s task...', $task->name()));
         }
     }
