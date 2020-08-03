@@ -3,17 +3,17 @@ declare(strict_types=1);
 
 namespace Ekvio\Integration\Skeleton\Invoker;
 
-use Ekvio\Integration\Skeleton\Invokable;
-use Ekvio\Integration\Skeleton\Profile\Profiler;
+use Ekvio\Integration\Contracts\Invoker;
+use Ekvio\Integration\Contracts\Profiler;
 use Exception;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
 /**
- * Class Queue
+ * Class Composite
  * @package Ekvio\Integration\Skeleton\Invoker
  */
-class Composite implements Invokable
+class Composite implements Invoker
 {
     private const NAME = 'Task aggregator';
     /**
@@ -62,7 +62,7 @@ class Composite implements Invokable
             }
 
             $task = $this->container->get($classname);
-            if(!$task instanceof Invokable) {
+            if(!$task instanceof Invoker) {
                 throw new Exception(sprintf('Task %s must implement Invokable interface', $classname));
             }
 
@@ -70,7 +70,7 @@ class Composite implements Invokable
         }
 
         foreach ($tasks as $invoker) {
-            /** @var Invokable $task */
+            /** @var Invoker $task */
             $task = $invoker['name'];
             $this->profiler->profile(sprintf('Starting %s task...', $task->name()));
             call_user_func_array($task, [$invoker['parameters']]);

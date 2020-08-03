@@ -4,7 +4,8 @@ declare(strict_types=1);
 namespace Ekvio\Integration\Skeleton;
 
 use DI\ContainerBuilder;
-use Ekvio\Integration\Skeleton\Profile\Profiler;
+use Ekvio\Integration\Contracts\Invoker;
+use Ekvio\Integration\Contracts\Profiler;
 use Exception;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -144,7 +145,7 @@ class Adapter implements Application
         }
         $task = $this->container->get($taskClassName);
 
-        if(!$task instanceof Invokable) {
+        if(!$task instanceof Invoker) {
             throw new Exception(sprintf('Task %s must implement Invokable interface', $taskClassName));
         }
 

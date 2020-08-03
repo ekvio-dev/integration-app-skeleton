@@ -3,10 +3,11 @@ declare(strict_types=1);
 
 namespace Ekvio\Integration\Skeleton\Profile;
 
+use Ekvio\Integration\Contracts\Profiler;
 use Psr\Log\LoggerInterface;
 
 /**
- * Class EkvioLoggerProfiler
+ * Class LoggerProfiler
  * @package Ekvio\Integration\Skeleton\Profile
  */
 class LoggerProfiler implements Profiler

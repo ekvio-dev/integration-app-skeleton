@@ -2,9 +2,9 @@
 
 namespace Ekvio\Integration\Skeleton;
 
+use Ekvio\Integration\Contracts\Profiler;
 use Ekvio\Integration\Skeleton\Log\LoggerMonologFactory;
 use Ekvio\Integration\Skeleton\Profile\LoggerProfiler;
-use Ekvio\Integration\Skeleton\Profile\Profiler;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
