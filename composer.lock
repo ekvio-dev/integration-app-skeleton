@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "027faf4933f8200aeb75e8d61463658f",
+    "content-hash": "523704f47440a49f1677d249d270d891",
     "packages": [
         {
             "name": "ekvio-dev/integration-app-contracts",
-            "version": "1.0.1",
+            "version": "2.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ekvio-dev/integration-app-contracts.git",
-                "reference": "06e7ce351c670438ac53793e73e66fe424e278b8"
+                "reference": "ccd0b6751191ca9eeacf9233603fb3e0ab7fcce8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ekvio-dev/integration-app-contracts/zipball/06e7ce351c670438ac53793e73e66fe424e278b8",
-                "reference": "06e7ce351c670438ac53793e73e66fe424e278b8",
+                "url": "https://api.github.com/repos/ekvio-dev/integration-app-contracts/zipball/ccd0b6751191ca9eeacf9233603fb3e0ab7fcce8",
+                "reference": "ccd0b6751191ca9eeacf9233603fb3e0ab7fcce8",
                 "shasum": ""
             },
             "require": {
@@ -40,7 +40,7 @@
                 }
             ],
             "description": "Equeo integration application contracts",
-            "time": "2020-08-03T11:58:23+00:00"
+            "time": "2020-08-10T13:19:37+00:00"
         },
         {
             "name": "jeremeamia/superclosure",

@@ -139,7 +139,6 @@ class Adapter implements Application
      */
     public function run(string $taskClassName, array $parameters = []): void
     {
-
         if(!class_exists($taskClassName)) {
             throw new Exception(sprintf('Class %s not exist', $taskClassName));
         }
@@ -157,6 +156,7 @@ class Adapter implements Application
             self::APP_SUCCESSFUL_COMPLETE_MESSAGE,
             self::APP_EMPTY_STACKTRACE
         ));
+        exit(0);
     }
 
     /**
