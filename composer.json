@@ -15,7 +15,7 @@
     "ext-curl": "*",
     "ext-json": "*",
     "ext-mbstring": "*",
-    "ekvio-dev/integration-app-contracts": "2.0.1",
+    "ekvio-dev/integration-app-contracts": "^3",
     "monolog/monolog": "^2.",
     "php-di/php-di": "^6.1"
   },
