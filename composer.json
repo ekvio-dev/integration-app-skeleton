@@ -2,7 +2,7 @@
   "name": "ekvio-dev/integration-app-skeleton",
   "description": "Ekvio integration application skeleton",
   "type": "project",
-  "license": "commercial",
+  "license": "proprietary",
   "minimum-stability": "stable",
   "authors": [
     {
