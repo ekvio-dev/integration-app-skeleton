@@ -6,6 +6,7 @@ namespace Ekvio\Integration\Skeleton\Log;
 use Exception;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Formatter\NormalizerFormatter;
+use Monolog\Handler\BufferHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
@@ -76,10 +77,29 @@ class LoggerMonologFactory
                     'timeout' => (int) getenv('LOGGER_TELEGRAM_PROXY_CURL_CONNECT_TIMEOUT') ?: null,
                     'verify' => getenv('LOGGER_TELEGRAM_PROXY_CURL_SSL_VERIFY') !== false ? getenv('CURL_SSL_VERIFY') : null,
                 ];
-                $level = (int) getenv('LOGGER_TELEGRAM_PROXY_LEVEL') ?? Logger::INFO;
+                $level = (int) getenv('LOGGER_TELEGRAM_PROXY_LEVEL') ?: Logger::INFO;
 
                 $handler = new ProxyTelegramHandler($host, $botId, $chatId, $options, $level);
                 $handler->setFormatter(self::defaultFormatter())->pushProcessor(new StacktracelessProcessor());
+                $logger->pushHandler($handler);
+            }
+
+            if($definition === 'elastic') {
+
+                $host = self::getEnv($env, 'ELASTIC_HOST');
+                $user = self::getEnv($env, 'ELASTIC_USER');
+                $password = self::getEnv($env, 'ELASTIC_PASSWORD');
+                $options = [
+                    'company' => self::getEnv($env,'INTEGRATION_COMPANY_NAME'),
+                    'adapter' => self::getEnv($env, 'INTEGRATION_APP_NAME'),
+                    'proxy' => getenv('CURL_PROXY') ?: null,
+                    'timeout' => (int) getenv('CURL_CONNECT_TIMEOUT') ?: null,
+                    'verify' => getenv('CURL_SSL_VERIFY') ?: false,
+                ];
+
+                $level = (int) getenv('ELASTIC_LOGGER_LEVEL') ?: Logger::DEBUG;
+
+                $handler = new BufferHandler(new ElasticHandler($host, $user, $password, $options, $level));
                 $logger->pushHandler($handler);
             }
         }
