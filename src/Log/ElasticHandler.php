@@ -6,6 +6,7 @@ namespace Ekvio\Integration\Skeleton\Log;
 use Monolog\DateTimeImmutable;
 use Monolog\Handler\AbstractProcessingHandler;
 use Monolog\Logger;
+use Throwable;
 
 /**
  * Class ElasticHandler
@@ -92,7 +93,25 @@ class ElasticHandler extends AbstractProcessingHandler
         curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json']);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
         curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
-        curl_exec($ch);
+        $result = curl_exec($ch);
+
+        if($result) {
+            try {
+                $response = json_decode($result, true, 512, JSON_THROW_ON_ERROR);
+                if(isset($response['error'])) {
+                    fwrite(STDOUT, sprintf("Error from Elastic: Code: %s, Message: %s\n", $response['status'], $response['error']['reason']));
+                }
+            } catch (Throwable $exception) {
+                fwrite(STDOUT, sprintf("Can not parse elastic response: %s\n", $result));
+            }
+        }
+
+        if (curl_errno($ch)) {
+            $error = curl_getinfo($ch);
+            $message = sprintf("Bad curl response. Code: %s, Url:%s\n", $error['http_code'], $error['url']);
+            fwrite(STDOUT, $message);
+        }
+
         curl_close($ch);
     }
 
