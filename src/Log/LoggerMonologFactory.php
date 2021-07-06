@@ -102,6 +102,25 @@ class LoggerMonologFactory
                 $handler = new BufferHandler(new ElasticHandler($host, $user, $password, $options, $level));
                 $logger->pushHandler($handler);
             }
+
+            if($definition === 'email') {
+                $handler = new BufferHandler(new SwiftmailerHandler(
+                    new SwiftmailerCredential(
+                        self::getEnv($env, 'LOGGER_SMTP_HOST'),
+                        self::getEnv($env, 'LOGGER_SMTP_USER'),
+                        self::getEnv($env, 'LOGGER_SMTP_PASSWORD'),
+                        (int) getenv('LOGGER_SMTP_PORT') ?: 587,
+                        getenv('LOGGER_SMTP_ENCRYPTION') ?: null
+                    ),
+                    new SwiftmailerMessage(
+                        self::getEnv($env, 'LOGGER_SMTP_TITLE'),
+                        self::getEnv($env, 'LOGGER_SMTP_FROM_EMAIL'),
+                        explode(',', self::getEnv($env, 'LOGGER_SMTP_TO_EMAIL'))
+                    ),
+                    (int) getenv('LOGGER_SMTP_LEVEL') ?: Logger::DEBUG
+                ));
+                $logger->pushHandler($handler);
+            }
         }
 
         return $logger;

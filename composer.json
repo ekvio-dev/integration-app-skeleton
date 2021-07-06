@@ -19,6 +19,9 @@
     "monolog/monolog": "^2.",
     "php-di/php-di": "^6.1"
   },
+  "suggest": {
+    "swiftmailer/swiftmailer": "Allow to mail logs through Swiftmailer"
+  },
   "autoload": {
     "psr-4": {
       "Ekvio\\Integration\\Skeleton\\": "src/"
