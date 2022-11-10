@@ -11,11 +11,11 @@
     }
   ],
   "require": {
-    "php": "^7.2",
+    "php": "^8",
     "ext-curl": "*",
     "ext-json": "*",
     "ext-mbstring": "*",
-    "ekvio-dev/integration-app-contracts": "^3",
+    "ekvio-dev/integration-app-contracts": "^4",
     "monolog/monolog": "^2.",
     "php-di/php-di": "^6.1"
   },
