@@ -3,6 +3,8 @@
 namespace Ekvio\Integration\Skeleton;
 
 use Ekvio\Integration\Contracts\Profiler;
+use Ekvio\Integration\Skeleton\Health\HealthCheckFactory;
+use Ekvio\Integration\Skeleton\Health\HealthChecker;
 use Ekvio\Integration\Skeleton\Log\LoggerMonologFactory;
 use Ekvio\Integration\Skeleton\Profile\LoggerProfiler;
 use Psr\Container\ContainerInterface;
@@ -37,8 +39,11 @@ class EnvironmentConfiguration
                 LoggerInterface::class => function () use ($env) {
                     return LoggerMonologFactory::createLogger('logger', $env);
                 },
-                Profiler::class => function(ContainerInterface $c) use ($debug) {
+                Profiler::class => function (ContainerInterface $c) use ($debug) {
                     return new LoggerProfiler($c->get(LoggerInterface::class), $debug);
+                },
+                HealthChecker::class => function () use ($env) {
+                    return HealthCheckFactory::build($env);
                 },
             ]
         ];

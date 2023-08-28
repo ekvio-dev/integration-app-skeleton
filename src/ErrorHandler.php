@@ -98,6 +98,8 @@ class ErrorHandler
         } catch (Throwable $e) {
             // additional check for \Throwable introduced in PHP 7
             $this->handleFallbackExceptionMessage($e);
+        } finally {
+            $this->app->healthChecker()->failure();
         }
 
         $this->exception = null;
