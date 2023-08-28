@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Ekvio\Integration\Skeleton;
 
+use Ekvio\Integration\Skeleton\Health\HealthChecker;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -33,6 +34,8 @@ interface Application
      * @return null|LoggerInterface
      */
     public function logger(): ?LoggerInterface;
+
+    public function healthChecker(): HealthChecker;
 
     /**
      * @param string $taskClassName

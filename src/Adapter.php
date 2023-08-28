@@ -6,6 +6,7 @@ namespace Ekvio\Integration\Skeleton;
 use DI\ContainerBuilder;
 use Ekvio\Integration\Contracts\Invoker;
 use Ekvio\Integration\Contracts\Profiler;
+use Ekvio\Integration\Skeleton\Health\HealthChecker;
 use Exception;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -50,6 +51,7 @@ class Adapter implements Application
     private $logger;
 
     private $profiler;
+    private $healthChecker;
 
     /**
      * Adapter constructor.
@@ -98,6 +100,7 @@ class Adapter implements Application
         $this->container = $container->build();
         $this->logger = $this->container->get(LoggerInterface::class);
         $this->profiler = $this->container->get(Profiler::class);
+        $this->healthChecker = $this->container->get(HealthChecker::class);
     }
 
     /**
@@ -132,6 +135,11 @@ class Adapter implements Application
         return $this->logger;
     }
 
+    public function healthChecker(): HealthChecker
+    {
+        return $this->healthChecker;
+    }
+
     /**
      * @param string $taskClassName
      * @param array $parameters
@@ -156,6 +164,8 @@ class Adapter implements Application
             self::APP_SUCCESSFUL_COMPLETE_MESSAGE,
             self::APP_EMPTY_STACKTRACE
         ));
+
+        $this->healthChecker()->success();
         exit(0);
     }
 
