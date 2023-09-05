@@ -121,6 +121,20 @@ class LoggerMonologFactory
                 ));
                 $logger->pushHandler($handler);
             }
+
+            if($definition === 'health_checker') {
+                $host = self::getEnv($env, 'HEALTH_CHECKER_HOST');
+                $adapterId = self::getEnv($env, 'HEALTH_CHECKER_ADAPTER_ID');
+                $options =  [
+                    'timeout' => (int) getenv('HEALTH_CHECKER_CURL_CONNECT_TIMEOUT') ?: null,
+                    'verify' => getenv('HEALTH_CHECKER_CURL_SSL_VERIFY') !== false ? getenv('CURL_SSL_VERIFY') : null,
+                ];
+                $level = (int) getenv('HEALTH_CHECKER_LEVEL') ?: Logger::INFO;
+
+                $handler = new HealthCheckerHandler($host, $adapterId, $options, $level);
+                $handler->setFormatter(self::defaultFormatter())->pushProcessor(new StacktracelessProcessor());
+                $logger->pushHandler($handler);
+            }
         }
 
         return $logger;
