@@ -160,12 +160,13 @@ class Adapter implements Application
         call_user_func_array($task, [$parameters]);
         $this->profiler->profile(sprintf('Stopping %s task...', $task->name()));
 
-        $this->logger()->info($this->format(
+        $successMessage = $this->format(
             self::APP_SUCCESSFUL_COMPLETE_MESSAGE,
             self::APP_EMPTY_STACKTRACE
-        ));
+        );
+        $this->logger()->info($successMessage);
 
-        $this->healthChecker()->success();
+        $this->healthChecker()->success($successMessage);
         exit(0);
     }
 

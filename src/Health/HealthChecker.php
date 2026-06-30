@@ -8,6 +8,6 @@ namespace Ekvio\Integration\Skeleton\Health;
 
 interface HealthChecker
 {
-    public function success(): void;
-    public function failure(): void;
+    public function success(string $body = ''): void;
+    public function failure(string $body = ''): void;
 }

@@ -14,17 +14,17 @@ class HealthCheckIO implements HealthChecker
     {
         $this->config = $config;
     }
-    public function success(): void
+    public function success(string $body = ''): void
     {
         $url = $this->buildUrl();
-        $response = file_get_contents($url, false, $this->getHttpStreamContext());
+        $response = file_get_contents($url, false, $this->getHttpStreamContext($body));
         $this->processResponse($url, $response);
     }
 
-    public function failure(): void
+    public function failure(string $body = ''): void
     {
         $url = $this->buildUrl() . '/fail';
-        $response = file_get_contents($url, false, $this->getHttpStreamContext());
+        $response = file_get_contents($url, false, $this->getHttpStreamContext($body));
         $this->processResponse($url, $response);
     }
 
@@ -33,17 +33,25 @@ class HealthCheckIO implements HealthChecker
         return sprintf('%s/ping/%s', $this->config->host(), $this->config->uid());
     }
 
-    private function getHttpStreamContext()
+    private function getHttpStreamContext(string $body = '')
     {
+        $http = [
+            'ignore_errors' => true,
+            'timeout' => 5.0,
+            'method' => $body === '' ? 'GET' : 'POST',
+        ];
+
+        if ($body !== '') {
+            $http['header'] = 'Content-Type: text/plain; charset=utf-8';
+            $http['content'] = $body;
+        }
+
         return stream_context_create([
             'ssl' => [
                 'verify_peer' => false,
                 'verify_peer_name' => false
             ],
-            'http' => [
-                'ignore_errors' => true,
-                'timeout' => 5.0
-            ]
+            'http' => $http
         ]);
     }
 

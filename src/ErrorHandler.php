@@ -93,13 +93,14 @@ class ErrorHandler
         // disable error capturing to avoid recursive errors while handling exceptions
         $this->unregister();
 
+        $failureBody = $this->formatExceptionMessage($exception);
         try {
             $this->logException($exception);
         } catch (Throwable $e) {
             // additional check for \Throwable introduced in PHP 7
             $this->handleFallbackExceptionMessage($e);
         } finally {
-            $this->app->healthChecker()->failure();
+            $this->app->healthChecker()->failure($failureBody);
         }
 
         $this->exception = null;
@@ -165,15 +166,26 @@ class ErrorHandler
      */
     public function logException(Throwable $exception)
     {
-        $exceptionMessage = sprintf('%s:%s:%s', $exception->getMessage(), $exception->getFile(), $exception->getLine());
-        $stacktrace = $exception->getTraceAsString() ?? '';
-
-        $message = $this->app->format($exceptionMessage, $stacktrace);
+        $message = $this->formatExceptionMessage($exception);
         if($this->app->logger()) {
             $this->app->logger()->error($message);
             return;
         }
 
         error_log($message);
+    }
+
+    /**
+     * Format exception into the canonical adapter message
+     * (the same format used by both the logger and the health checker body).
+     * @param Throwable $exception
+     * @return string
+     */
+    private function formatExceptionMessage(Throwable $exception): string
+    {
+        $exceptionMessage = sprintf('%s:%s:%s', $exception->getMessage(), $exception->getFile(), $exception->getLine());
+        $stacktrace = $exception->getTraceAsString() ?? '';
+
+        return $this->app->format($exceptionMessage, $stacktrace);
     }
 }
