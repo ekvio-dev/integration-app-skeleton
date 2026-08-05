@@ -29,7 +29,7 @@ class EnvironmentConfiguration
     public static function create(): array
     {
         $env = getenv();
-        $debug = (bool) $env['APPLICATION_DEBUG'] ?? null;
+        $debug = (bool) ($env['APPLICATION_DEBUG'] ?? null);
 
         return  [
             'name' => $env['INTEGRATION_APP_NAME'] ?? null,

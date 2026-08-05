@@ -1,48 +1,36 @@
-FROM php:7.4-cli-alpine3.11
+FROM composer:2 AS composer
+
+FROM php:8.4-cli-alpine
 
 LABEL Description="Equeo integration app skeleton"
 
-ENV BuildTimezone Europe/Moscow
+ENV TZ=Europe/Moscow
 
-RUN mkdir /app
-COPY . /app
+COPY --from=composer /usr/bin/composer /usr/local/bin/composer
+
+RUN set -eux; \
+    apk add --no-cache oniguruma tzdata; \
+    apk add --no-cache --virtual .build-deps $PHPIZE_DEPS linux-headers oniguruma-dev; \
+    docker-php-ext-install -j"$(nproc)" mbstring; \
+    pecl install xdebug; \
+    docker-php-ext-enable xdebug; \
+    apk del .build-deps; \
+    adduser -D -u 1200 -s /bin/sh app; \
+    cp "/usr/share/zoneinfo/$TZ" /etc/localtime; \
+    echo "$TZ" > /etc/timezone; \
+    mkfifo /tmp/stdout; \
+    chmod 666 /tmp/stdout
+
 WORKDIR /app
-RUN \
-# add system dependencies required for build
-    apk add --no-cache --virtual build-deps \
-        autoconf \
-        gcc \
-        make \
-        g++ \
-        libssh2-dev \
-        php7-mbstring && \
-# install Xdebug
-    pecl install -o -f xdebug && \
-# download and install composer
-    curl -s -f -L -o /tmp/composer-setup.php https://getcomposer.org/installer && \
-    EXPECTED_CHECKSUM="$(wget -q -O - https://composer.github.io/installer.sig)" && \
-    ACTUAL_CHECKSUM="$(php -r "echo hash_file('sha384', '/tmp/composer-setup.php');")" && \
-    if [ "$EXPECTED_CHECKSUM" != "$ACTUAL_CHECKSUM" ]; then >&2 echo 'ERROR: Invalid installer checksum' && \
-    rm /tmp/composer-setup.php && \
-    exit 1; fi && \
-    php /tmp/composer-setup.php --no-ansi --install-dir=/usr/local/bin --filename=composer && \
-    composer --ansi --version --no-interaction && \
-    rm -f /tmp/*.php && \
-# install system persistent dependencies
-    apk add --no-cache --virtual persistent-deps \
-        libssh2 \
-        shadow \
-        tzdata && \
-    useradd --create-home --uid 1200 --user-group --shell /bin/sh app && \
-    chown -R app:app /app && \
-    cp /usr/share/zoneinfo/${BuildTimezone} /etc/localtime && \
-    echo ${BuildTimezone} > /etc/timezone && \
-    mkfifo /tmp/stdout && \
-    chmod 777 /tmp/stdout && \
-# create custom php config
-    cp docker/config/php/develop.ini /usr/local/etc/php/conf.d/custom.ini && \
-# install composer dependencies
-    composer install --prefer-dist --no-dev && \
-    composer clearcache && \
-# remove system dependencies required for build
-    apk del build-deps
+
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --prefer-dist --no-interaction --no-progress --optimize-autoloader \
+    && composer clear-cache
+
+COPY . ./
+COPY docker/config/php/custom.ini /usr/local/etc/php/conf.d/99-custom.ini
+COPY docker/config/php/develop.ini /usr/local/etc/php/conf.d/99-xdebug.ini
+
+RUN chown -R app:app /app
+
+USER app
