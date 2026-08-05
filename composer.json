@@ -11,13 +11,13 @@
     }
   ],
   "require": {
-    "php": "^8",
+    "php": "^8.0",
     "ext-curl": "*",
     "ext-json": "*",
     "ext-mbstring": "*",
     "ekvio-dev/integration-app-contracts": "^4",
-    "monolog/monolog": "^2.",
-    "php-di/php-di": "^6.1"
+    "monolog/monolog": "^2.11",
+    "php-di/php-di": "^7.1"
   },
   "suggest": {
     "swiftmailer/swiftmailer": "Allow to mail logs through Swiftmailer"
